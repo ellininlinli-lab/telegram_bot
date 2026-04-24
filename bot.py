@@ -9,6 +9,14 @@ load_dotenv()
 bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
 
+@dp.message(commands=["start"])
+async def start(message: types.Message):
+    await message.answer(
+        "👋 Привет!\n\n"
+        "подписываемся на мой тгк и лайкаем все посты! https://t.me/dumblisa666"
+        "Задай вопрос — и я отвечу по материалу."
+    )
+
 @dp.message()
 async def handler(message: types.Message):
     q = message.text
