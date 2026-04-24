@@ -1,0 +1,8 @@
+aiogram
+python-dotenv
+requests
+scikit-learn
+pypdf
+sentence-transformers
+faiss-cpu
+cerebras-cloud-sdk
