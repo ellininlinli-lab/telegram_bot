@@ -2,6 +2,7 @@ import asyncio
 import os
 import requests
 from aiogram import Bot, Dispatcher, types
+from aiogram.filters import CommandStart
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,6 +11,12 @@ bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
 
 API_KEY = os.getenv("CEREBRAS_API_KEY")
+
+
+@dp.message(CommandStart())
+async def start(message: types.Message):
+    await message.answer("👋 Привет! Напиши любой вопрос")
+
 
 @dp.message()
 async def handler(message: types.Message):
@@ -34,7 +41,12 @@ async def handler(message: types.Message):
             }
         )
 
-        answer = response.json()["choices"][0]["message"]["content"]
+        data = response.json()
+
+        if "choices" in data:
+            answer = data["choices"][0]["message"]["content"]
+        else:
+            answer = f"Ошибка API: {data}"
 
     except Exception as e:
         answer = f"Ошибка: {e}"
