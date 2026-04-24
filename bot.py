@@ -2,7 +2,7 @@ import asyncio
 import os
 import requests
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart   # ← ДОБАВЬ
 from dotenv import load_dotenv
 
 load_dotenv()
