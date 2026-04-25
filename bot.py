@@ -1,58 +1,31 @@
-import asyncio
 import os
+import asyncio
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import CommandStart
-from dotenv import load_dotenv
-
-from rag import search, ask_llm
-
-load_dotenv()
+from aiogram import Bot, Dispatcher
+from aiogram.types import Message
 
 bot = Bot(token=os.getenv("BOT_TOKEN"))
 dp = Dispatcher()
 
-
-@dp.message(CommandStart())
-async def start(message: types.Message):
-    await message.answer("👋 Привет! Задай вопрос")
-
-
+# ====== ОБРАБОТКА СООБЩЕНИЙ ======
 @dp.message()
-async def handler(message: types.Message):
-    q = message.text
+async def handle_message(message: Message):
+    await message.answer("Привет! Я работаю 🚀")
 
-    msg = await message.answer("💭 Думаю...")
-
-    try:
-        chunks = search(q)
-        context = "\n\n".join(chunks)
-
-        answer = await ask_llm(context, q)
-
-    except Exception as e:
-        answer = f"❌ Ошибка: {e}"
-
-    if len(answer) > 4000:
-        answer = answer[:4000] + "\n\n✂️ Обрезано"
-
-    await msg.edit_text(answer)
-
-
+# ====== POLLING ======
 async def main():
     print("Bot started")
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
-
-# 👇 ВОТ ЭТО КЛЮЧЕВОЕ
+# ====== HTTP сервер (для Render) ======
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(b"OK")
-
+        self.wfile.write(b"Bot is running")
 
 def run_server():
     port = int(os.environ.get("PORT", 10000))
@@ -60,25 +33,7 @@ def run_server():
     server = HTTPServer(("0.0.0.0", port), Handler)
     server.serve_forever()
 
-
-if __name__ == "__main__":
-    threading.Thread(target=run_server).start()
-    asyncio.run(main())
-
-# сервер для Render
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Bot is running")
-
-
-def run_server():
-    port = int(os.environ.get("PORT", 10000))
-    server = HTTPServer(("0.0.0.0", port), Handler)
-    server.serve_forever()
-
-
+# ====== ЗАПУСК ======
 if __name__ == "__main__":
     threading.Thread(target=run_server).start()
     asyncio.run(main())
