@@ -59,22 +59,5 @@ async def main():
     await dp.start_polling(bot)
 
 
-# ===== сервер для Render =====
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Bot is running")
-
-
-def run_server():
-    port = int(os.environ.get("PORT", 10000))
-    print(f"Starting server on port {port}")
-    server = HTTPServer(("0.0.0.0", port), Handler)
-    server.serve_forever()
-
-
-# ===== запуск =====
 if __name__ == "__main__":
-    threading.Thread(target=run_server).start()
     asyncio.run(main())
